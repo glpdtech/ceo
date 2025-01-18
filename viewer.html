@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+        }
+        .popup-buttons {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .popup-buttons.show {
+            opacity: 1;
+        }
+        .popup-buttons button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 120px; /* Increased size for better visibility */
+            height: 120px;
+            transition: transform 0.3s ease;
+        }
+        .popup-buttons button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .popup-buttons button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="statusScreen" class="screen"></div>
+        <div id="popupButtons" class="popup-buttons">
+            <!-- PNG icons for status options -->
+            <button onclick="updateStatus('available')">
+                <img src="available_icon.png" alt="Available">
+            </button>
+            <button onclick="updateStatus('busy')">
+                <img src="busy_icon.png" alt="Busy">
+            </button>
+            <button onclick="updateStatus('DO NOT DISTURB')">
+                <img src="dnd_icon.png" alt="Do Not Disturb">
+            </button>
+            <button onclick="updateStatus('meeting')">
+                <img src="meeting_icon.png" alt="Meeting">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let popupTimeout;
+
+        // Fetch status every 2 seconds
+        function fetchStatus() {
+            fetch('status.json')
+                .then(response => response.json())
+                .then(data => {
+                    const screen = document.getElementById('statusScreen');
+                    if (data.status === 'available') {
+                        screen.style.backgroundImage = "url('available01.jpg')";
+                    } else if (data.status === 'busy') {
+                        screen.style.backgroundImage = "url('busy02.jpg')";
+                    } else if (data.status === 'DO NOT DISTURB') {
+                        screen.style.backgroundImage = "url('DoNotDisturb04.jpg')";
+                    } else if (data.status === 'meeting') {
+                        screen.style.backgroundImage = "url('Ongoingmeeting03.jpg')";
+                    } else {
+                        screen.style.backgroundImage = "url('default.jpg')";
+                    }
+                })
+                .catch(err => console.error('Error fetching status:', err));
+        }
+
+        // Update status via API and notify the controller if needed
+        function updateStatus(status) {
+            fetch('update_status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${status}`
+            })
+            .then(response => response.text())
+            .then(() => {
+                fetchStatus(); // Refresh the screen instantly after updating
+                // Trigger controller update via API to reflect this change (you can call a function or endpoint here)
+                notifyController(status);
+            })
+            .catch(err => console.error('Error updating status:', err));
+        }
+
+        // Notify the controller to update the status (this can trigger updates on the control side)
+        function notifyController(status) {
+            fetch('update_status_controller.php', {  // Endpoint on the controller to handle this update
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${status}`
+            })
+            .then(response => response.text())
+            .catch(err => console.error('Error notifying controller:', err));
+        }
+
+        // Show popup buttons on click
+        function showPopupButtons() {
+            const popupButtons = document.getElementById('popupButtons');
+            popupButtons.classList.add('show');
+            clearTimeout(popupTimeout); // Reset hide timer
+            popupTimeout = setTimeout(() => {
+                popupButtons.classList.remove('show');
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Attach tap listener to show popup buttons
+        document.body.addEventListener('click', showPopupButtons);
+
+        // Start polling for status updates
+        setInterval(fetchStatus, 2000); // Poll every 2 seconds
+        fetchStatus(); // Initial fetch
+    </script>
+</body>
+</html>
