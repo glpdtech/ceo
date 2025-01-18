@@ -93,13 +93,12 @@
                     const statusImages = {
                         available: 'images/available01.jpg',
                         busy: 'images/busy02.jpg',
-                        'DO NOT DISTURB': 'images/DoNotDisturb04.jpg',
+                        DO NOT DISTURB: 'images/DoNotDisturb04.jpg',
                         meeting: 'images/Ongoingmeeting03.jpg',
-                        default: 'images/default.jpg',
                     };
 
                     // Display the background image based on the status
-                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.meeting}')`;
+                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.available}')`;
                 })
                 .catch(err => console.error('Error fetching status:', err));
         }
