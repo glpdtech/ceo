@@ -99,7 +99,7 @@
                     };
 
                     // Display the background image based on the status
-                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.default}')`;
+                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.meeting}')`;
                 })
                 .catch(err => console.error('Error fetching status:', err));
         }
