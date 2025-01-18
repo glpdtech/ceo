@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+        }
+        .popup-buttons {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .popup-buttons.show {
+            opacity: 1;
+        }
+        .popup-buttons button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 120px;
+            height: 120px;
+            transition: transform 0.3s ease;
+        }
+        .popup-buttons button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .popup-buttons button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="statusScreen" class="screen"></div>
+        <div id="popupButtons" class="popup-buttons">
+            <button onclick="updateStatus('available')">
+                <img src="available_icon.png" alt="Available">
+            </button>
+            <button onclick="updateStatus('busy')">
+                <img src="busy_icon.png" alt="Busy">
+            </button>
+            <button onclick="updateStatus('DO NOT DISTURB')">
+                <img src="dnd_icon.png" alt="Do Not Disturb">
+            </button>
+            <button onclick="updateStatus('meeting')">
+                <img src="meeting_icon.png" alt="Meeting">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let popupTimeout;
+
+        // Directly update status image based on button click
+        function updateStatus(status) {
+            const screen = document.getElementById('statusScreen');
+            const statusImages = {
+                available: 'https://glpdtech.github.io/vpr/available01.jpg',
+                busy: 'https://glpdtech.github.io/vpr/busy02.jpg',
+                'DO NOT DISTURB': 'https://glpdtech.github.io/vpr/DoNotDisturb04.jpg',
+                meeting: 'https://glpdtech.github.io/vpr/Ongoingmeeting03.jpg',
+                default: 'https://glpdtech.github.io/vpr/default.jpg'
+            };
+
+            // Update the background image based on the selected status
+            screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
+
+            // Optionally, you can call the API to notify the controller (if needed)
+            notifyController(status);
+        }
+
+        // Notify the controller to update the status
+        function notifyController(status) {
+            fetch('https://your-server-url/update_status_controller.php', {  // Your server endpoint
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${status}`
+            })
+            .then(response => response.text())
+            .catch(err => console.error('Error notifying controller:', err));
+        }
+
+        // Show popup buttons when the user clicks
+        function showPopupButtons() {
+            const popupButtons = document.getElementById('popupButtons');
+            popupButtons.classList.add('show');
+            clearTimeout(popupTimeout);
+            popupTimeout = setTimeout(() => {
+                popupButtons.classList.remove('show');
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Attach listener to show popup buttons
+        document.body.addEventListener('click', showPopupButtons);
+
+    </script>
+</body>
+</html>
