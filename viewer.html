@@ -83,30 +83,30 @@
     <script>
         let popupTimeout;
 
-        // Fetch status every 2 seconds
+        // Fetch status from Google Apps Script (your URL)
         function fetchStatus() {
-            fetch('status.json')
+            fetch('https://script.google.com/macros/s/AKfycbwSvnoHdOk06n4Sw1iWcV9RkZHGxIvLsn8qqL-V6MGfp0Veb-U8UCM6vDsl78OEDcuV/exec')
                 .then(response => response.json())
                 .then(data => {
                     const screen = document.getElementById('statusScreen');
-                    if (data.status === 'available') {
-                        screen.style.backgroundImage = "url(available01.jpg)";
-                    } else if (data.status === 'busy') {
-                        screen.style.backgroundImage = "url('busy02.jpg')";
-                    } else if (data.status === 'DO NOT DISTURB') {
-                        screen.style.backgroundImage = "url('DoNotDisturb04.jpg')";
-                    } else if (data.status === 'meeting') {
-                        screen.style.backgroundImage = "url('Ongoingmeeting03.jpg')";
-                    } else {
-                        screen.style.backgroundImage = "url('default.jpg')";
-                    }
+                    // Assuming status data comes with image names
+                    const statusImages = {
+                        available: 'images/available01.jpg',
+                        busy: 'images/busy02.jpg',
+                        'DO NOT DISTURB': 'images/DoNotDisturb04.jpg',
+                        meeting: 'images/Ongoingmeeting03.jpg',
+                        default: 'images/default.jpg',
+                    };
+
+                    // Display the background image based on the status
+                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.default}')`;
                 })
                 .catch(err => console.error('Error fetching status:', err));
         }
 
-        // Update status via API and notify the controller if needed
+        // Update status via Google Apps Script
         function updateStatus(status) {
-            fetch('update_status.php', {
+            fetch('https://script.google.com/macros/s/AKfycbwSvnoHdOk06n4Sw1iWcV9RkZHGxIvLsn8qqL-V6MGfp0Veb-U8UCM6vDsl78OEDcuV/exec', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `status=${status}`
@@ -114,21 +114,8 @@
             .then(response => response.text())
             .then(() => {
                 fetchStatus(); // Refresh the screen instantly after updating
-                // Trigger controller update via API to reflect this change (you can call a function or endpoint here)
-                notifyController(status);
             })
             .catch(err => console.error('Error updating status:', err));
-        }
-
-        // Notify the controller to update the status (this can trigger updates on the control side)
-        function notifyController(status) {
-            fetch('update_status_controller.php', {  // Endpoint on the controller to handle this update
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `status=${status}`
-            })
-            .then(response => response.text())
-            .catch(err => console.error('Error notifying controller:', err));
         }
 
         // Show popup buttons on click
