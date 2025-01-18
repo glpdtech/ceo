@@ -46,7 +46,7 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            width: 120px; /* Increased size for better visibility */
+            width: 120px;
             height: 120px;
             transition: transform 0.3s ease;
         }
@@ -64,7 +64,6 @@
     <div class="container">
         <div id="statusScreen" class="screen"></div>
         <div id="popupButtons" class="popup-buttons">
-            <!-- PNG icons for status options -->
             <button onclick="updateStatus('available')">
                 <img src="available_icon.png" alt="Available">
             </button>
@@ -83,56 +82,48 @@
     <script>
         let popupTimeout;
 
-        // Fetch status from Google Apps Script (your URL)
-        function fetchStatus() {
-            fetch('https://script.google.com/macros/s/AKfycbwSvnoHdOk06n4Sw1iWcV9RkZHGxIvLsn8qqL-V6MGfp0Veb-U8UCM6vDsl78OEDcuV/exec')
-                .then(response => response.json())
-                .then(data => {
-                    const screen = document.getElementById('statusScreen');
-                    // Assuming status data comes with image names
-                    const statusImages = {
-                        available: 'images/available01.jpg',
-                        busy: 'images/busy02.jpg',
-                        'DO NOT DISTURB': 'images/DoNotDisturb04.jpg',
-                        meeting: 'images/Ongoingmeeting03.jpg',
-                    };
+        // Directly update status image based on button click
+        function updateStatus(status) {
+            const screen = document.getElementById('statusScreen');
+            const statusImages = {
+                available: 'https://glpdtech.github.io/rms/available01.jpg',
+                busy: 'https://glpdtech.github.io/rms/busy02.jpg',
+                'DO NOT DISTURB': 'https://glpdtech.github.io/rms/DoNotDisturb04.jpg',
+                meeting: 'https://glpdtech.github.io/rms/Ongoingmeeting03.jpg',
+                default: 'https://glpdtech.github.io/rms/default.jpg'
+            };
 
-                    // Display the background image based on the status
-                    screen.style.backgroundImage = `url('${statusImages[data.status] || statusImages.available}')`;
-                })
-                .catch(err => console.error('Error fetching status:', err));
+            // Update the background image based on the selected status
+            screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
+
+            // Optionally, you can call the API to notify the controller (if needed)
+            notifyController(status);
         }
 
-        // Update status via Google Apps Script
-        function updateStatus(status) {
-            fetch('https://script.google.com/macros/s/AKfycbwSvnoHdOk06n4Sw1iWcV9RkZHGxIvLsn8qqL-V6MGfp0Veb-U8UCM6vDsl78OEDcuV/exec', {
+        // Notify the controller to update the status
+        function notifyController(status) {
+            fetch('https://your-server-url/update_status_controller.php', {  // Your server endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `status=${status}`
             })
             .then(response => response.text())
-            .then(() => {
-                fetchStatus(); // Refresh the screen instantly after updating
-            })
-            .catch(err => console.error('Error updating status:', err));
+            .catch(err => console.error('Error notifying controller:', err));
         }
 
-        // Show popup buttons on click
+        // Show popup buttons when the user clicks
         function showPopupButtons() {
             const popupButtons = document.getElementById('popupButtons');
             popupButtons.classList.add('show');
-            clearTimeout(popupTimeout); // Reset hide timer
+            clearTimeout(popupTimeout);
             popupTimeout = setTimeout(() => {
                 popupButtons.classList.remove('show');
             }, 2000); // Hide after 2 seconds
         }
 
-        // Attach tap listener to show popup buttons
+        // Attach listener to show popup buttons
         document.body.addEventListener('click', showPopupButtons);
 
-        // Start polling for status updates
-        setInterval(fetchStatus, 2000); // Poll every 2 seconds
-        fetchStatus(); // Initial fetch
     </script>
 </body>
 </html>
