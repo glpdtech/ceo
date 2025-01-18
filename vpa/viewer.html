@@ -124,6 +124,10 @@
         // Attach listener to show popup buttons
         document.body.addEventListener('click', showPopupButtons);
 
+        // Set the default status image on page load (this ensures the default photo shows up initially)
+        window.onload = function() {
+            updateStatus('default'); // This ensures the default.jpg is shown on page load
+
     </script>
 </body>
 </html>
