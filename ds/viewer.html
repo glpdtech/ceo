@@ -63,60 +63,34 @@
 <body>
     <div class="container">
         <div id="statusScreen" class="screen"></div>
-        <div id="popupButtons" class="popup-buttons">
-            <button onclick="updateStatus('available')">
-                <img src="images/available_icon.png" alt="Available">
-            </button>
-            <button onclick="updateStatus('busy')">
-                <img src="images/busy_icon.png" alt="Busy">
-            </button>
-            <button onclick="updateStatus('DO NOT DISTURB')">
-                <img src="images/dnd_icon.png" alt="Do Not Disturb">
-            </button>
-            <button onclick="updateStatus('meeting')">
-                <img src="images/meeting_icon.png" alt="Meeting">
-            </button>
-        </div>
     </div>
 
     <script>
-        let popupTimeout;
+        const statusImages = {
+            available: 'https://glpdtech.github.io/it/available01.jpg',
+            busy: 'https://glpdtech.github.io/it/busy02.jpg',
+            'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
+            meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
+            default: 'https://glpdtech.github.io/it/default.jpg'
+        };
 
-        function updateStatus(status) {
-            const screen = document.getElementById('statusScreen');
-            const statusImages = {
-                available: 'images/available01.jpg',
-                busy: 'images/busy02.jpg',
-                'DO NOT DISTURB': 'images/DoNotDisturb04.jpg',
-                meeting: 'images/Ongoingmeeting03.jpg',
-                default: 'images/default.jpg'
-            };
-
-            screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
-
-            notifyController(status);
+        // Function to fetch the current status and update the background image
+        function updateStatus() {
+            fetch('https://glpdtech.github.io/it/status.json')
+                .then(response => response.json())
+                .then(data => {
+                    const screen = document.getElementById('statusScreen');
+                    const status = data.status || 'default';  // Default to 'default' if no status
+                    screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
+                })
+                .catch(err => console.error('Error fetching status:', err));
         }
 
-        function notifyController(status) {
-            fetch('update_status.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `status=${status}`
-            })
-            .then(response => response.text())
-            .catch(err => console.error('Error notifying controller:', err));
-        }
+        // Set up auto-refresh to fetch the status every 5 seconds
+        setInterval(updateStatus, 2000);  // Update every 5 seconds (you can adjust this time)
 
-        function showPopupButtons() {
-            const popupButtons = document.getElementById('popupButtons');
-            popupButtons.classList.add('show');
-            clearTimeout(popupTimeout);
-            popupTimeout = setTimeout(() => {
-                popupButtons.classList.remove('show');
-            }, 2000);
-        }
-
-        document.body.addEventListener('click', showPopupButtons);
+        // Initial status load when the viewer page is opened
+        updateStatus();
     </script>
 </body>
 </html>
