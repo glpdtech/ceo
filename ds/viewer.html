@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+        }
+        .popup-buttons {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .popup-buttons.show {
+            opacity: 1;
+        }
+        .popup-buttons button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 120px;
+            height: 120px;
+            transition: transform 0.3s ease;
+        }
+        .popup-buttons button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .popup-buttons button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="statusScreen" class="screen"></div>
+        <div id="popupButtons" class="popup-buttons">
+            <button onclick="updateStatus('available')">
+                <img src="images/available_icon.png" alt="Available">
+            </button>
+            <button onclick="updateStatus('busy')">
+                <img src="images/busy_icon.png" alt="Busy">
+            </button>
+            <button onclick="updateStatus('DO NOT DISTURB')">
+                <img src="images/dnd_icon.png" alt="Do Not Disturb">
+            </button>
+            <button onclick="updateStatus('meeting')">
+                <img src="images/meeting_icon.png" alt="Meeting">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let popupTimeout;
+
+        function updateStatus(status) {
+            const screen = document.getElementById('statusScreen');
+            const statusImages = {
+                available: 'images/available01.jpg',
+                busy: 'images/busy02.jpg',
+                'DO NOT DISTURB': 'images/DoNotDisturb04.jpg',
+                meeting: 'images/Ongoingmeeting03.jpg',
+                default: 'images/default.jpg'
+            };
+
+            screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
+
+            notifyController(status);
+        }
+
+        function notifyController(status) {
+            fetch('update_status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${status}`
+            })
+            .then(response => response.text())
+            .catch(err => console.error('Error notifying controller:', err));
+        }
+
+        function showPopupButtons() {
+            const popupButtons = document.getElementById('popupButtons');
+            popupButtons.classList.add('show');
+            clearTimeout(popupTimeout);
+            popupTimeout = setTimeout(() => {
+                popupButtons.classList.remove('show');
+            }, 2000);
+        }
+
+        document.body.addEventListener('click', showPopupButtons);
+    </script>
+</body>
+</html>
