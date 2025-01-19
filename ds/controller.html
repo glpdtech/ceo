@@ -3,68 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controller</title>
+    <title>CEO Status Controller</title>
     <style>
-        /* Style setup here as per previous design */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #00ffcc;
+        }
+
+        .status-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .status-buttons button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 140px;
+            height: 140px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .status-buttons button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .status-buttons button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 255, 204, 0.7);
+        }
+
+        .status-buttons button:active img {
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Control Status</h1>
+    <h1>CEO Control Status</h1>
     <div class="status-buttons">
-        <!-- Add buttons for changing the status -->
-        <button onclick="updateStatus('available')">Available</button>
-        <button onclick="updateStatus('busy')">Busy</button>
-        <button onclick="updateStatus('DO NOT DISTURB')">Do Not Disturb</button>
-        <button onclick="updateStatus('meeting')">Meeting</button>
+        <button onclick="updateStatus('available', this)">
+            <img src="available_icon.png" alt="Available" title="Available">
+        </button>
+        <button onclick="updateStatus('busy', this)">
+            <img src="busy_icon.png" alt="Busy" title="Busy">
+        </button>
+        <button onclick="updateStatus('DO NOT DISTURB', this)">
+            <img src="dnd_icon.png" alt="Do Not Disturb" title="Do Not Disturb">
+        </button>
+        <button onclick="updateStatus('meeting', this)">
+            <img src="meeting_icon.png" alt="Meeting" title="Meeting">
+        </button>
     </div>
 
     <script>
-        const githubToken = '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'; // Your personal GitHub token
-        const repoOwner = 'glpdtech@gmai.com'; // Your GitHub username
-        const repoName = 'it'; // Your repository name
-        const filePath = 'status.json'; // Path to the JSON file in your repository
+        function updateStatus(status, buttonElement) {
+            // Immediately reset shadow effects for all buttons
+            const allButtons = document.querySelectorAll('.status-buttons button');
+            allButtons.forEach(button => {
+                button.classList.remove('highlighted');
+            });
 
-        // Function to update the status
-        function updateStatus(status) {
-            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
-
-            // Fetch the current content of the status.json file to get the sha for updating
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const sha = data.sha; // Get the sha of the file
-                    const updateData = {
-                        message: `Update status to ${status}`,
-                        committer: {
-                            name: "glpdtech",
-                            email: "glpdtech@gmail.com"
-                        },
-                        content: btoa(JSON.stringify({ status: status })), // Convert JSON to Base64
-                        sha: sha
-                    };
-
-                    // Send a PUT request to GitHub API to update the file
-                    fetch(apiUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${githubToken}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        },
-                        body: JSON.stringify(updateData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert('Status updated to ' + status);
-                    })
-                    .catch(err => {
-                        console.error('Error updating the status:', err);
-                        alert('Failed to update status');
-                    });
-                })
-                .catch(err => {
-                    console.error('Error fetching the file content:', err);
-                    alert('Failed to retrieve file for update');
-                });
+            // Update the status in the JSON file on GitHub using a simple fetch request
+            fetch('https://raw.githubusercontent.com/glpdtech/it/main/status.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status })  // Updating status in JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Status updated to: ${status}`);
+            })
+            .catch(err => alert('Error updating status: ' + err));
         }
     </script>
 </body>
