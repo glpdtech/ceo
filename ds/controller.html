@@ -20,7 +20,7 @@
 
     <script>
         const githubToken = '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'; // Your personal GitHub token
-        const repoOwner = 'glpdtech'; // Your GitHub username
+        const repoOwner = 'glpdtech@gmai.com'; // Your GitHub username
         const repoName = 'it'; // Your repository name
         const filePath = 'status.json'; // Path to the JSON file in your repository
 
@@ -36,8 +36,8 @@
                     const updateData = {
                         message: `Update status to ${status}`,
                         committer: {
-                            name: "Your Name",
-                            email: "your-email@example.com"
+                            name: "glpdtech",
+                            email: "glpdtech@gmail.com"
                         },
                         content: btoa(JSON.stringify({ status: status })), // Convert JSON to Base64
                         sha: sha
