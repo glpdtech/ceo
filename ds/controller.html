@@ -12,24 +12,24 @@
             justify-content: center;
             height: 100vh;
             font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #000; /* Keep background black */
             margin: 0;
+            color: #fff;
             padding: 10px;
         }
 
         h1 {
             font-size: 2rem;
             margin-bottom: 20px;
-            color: #00ffcc;
+            color: #00ffcc; /* Stylish accent color */
         }
 
         .status-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
+            flex-direction: column; /* Align buttons top to bottom */
+            gap: 20px; /* Gap between the icons */
+            justify-content: center; /* Center alignment for the icons */
+            margin-top: 20px; /* Space between the heading and buttons */
         }
 
         .status-buttons button {
@@ -37,7 +37,7 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            width: 140px;
+            width: 140px; /* Icon size (slightly larger for visibility) */
             height: 140px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -47,33 +47,36 @@
             height: 100%;
             object-fit: contain;
             border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Subtle shadow for the icons */
         }
 
         .status-buttons button:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 12px rgba(0, 255, 204, 0.7);
+            box-shadow: 0 6px 12px rgba(0, 255, 204, 0.7); /* Glow effect on hover */
         }
 
+        /* No box shadow and immediate reset of the icon */
         .status-buttons button:active img {
-            box-shadow: none;
+            box-shadow: none; /* Remove box shadow when the button is pressed */
         }
+
     </style>
 </head>
 <body>
     <h1>CEO Control Status</h1>
     <div class="status-buttons">
+        <!-- Buttons with icons for each status -->
         <button onclick="updateStatus('available', this)">
-            <img src="available_icon.png" alt="Available" title="Available">
+            <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/available_icon.png" alt="Available" title="Available">
         </button>
         <button onclick="updateStatus('busy', this)">
-            <img src="busy_icon.png" alt="Busy" title="Busy">
+            <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/busy_icon.png" alt="Busy" title="Busy">
         </button>
         <button onclick="updateStatus('DO NOT DISTURB', this)">
-            <img src="dnd_icon.png" alt="Do Not Disturb" title="Do Not Disturb">
+            <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/dnd_icon.png" alt="Do Not Disturb" title="Do Not Disturb">
         </button>
         <button onclick="updateStatus('meeting', this)">
-            <img src="meeting_icon.png" alt="Meeting" title="Meeting">
+            <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/meeting_icon.png" alt="Meeting" title="Meeting">
         </button>
     </div>
 
@@ -85,11 +88,11 @@
                 button.classList.remove('highlighted');
             });
 
-            // Update the status in the JSON file on GitHub using a simple fetch request
+            // Make the API call to update the status
             fetch('https://raw.githubusercontent.com/glpdtech/it/main/status.json', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: status })  // Updating status in JSON
+                body: JSON.stringify({ status: status })
             })
             .then(response => response.json())
             .then(data => {
