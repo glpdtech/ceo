@@ -63,34 +63,90 @@
 <body>
     <div class="container">
         <div id="statusScreen" class="screen"></div>
+        <div id="popupButtons" class="popup-buttons">
+            <button onclick="updateStatus('available')">
+                <img src="available_icon.png" alt="Available">
+            </button>
+            <button onclick="updateStatus('busy')">
+                <img src="busy_icon.png" alt="Busy">
+            </button>
+            <button onclick="updateStatus('DO NOT DISTURB')">
+                <img src="dnd_icon.png" alt="Do Not Disturb">
+            </button>
+            <button onclick="updateStatus('meeting')">
+                <img src="meeting_icon.png" alt="Meeting">
+            </button>
+        </div>
     </div>
 
     <script>
-        const statusImages = {
-            available: 'https://glpdtech.github.io/it/available01.jpg',
-            busy: 'https://glpdtech.github.io/it/busy02.jpg',
-            'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
-            meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
-            default: 'https://glpdtech.github.io/it/default.jpg'
-        };
+        let popupTimeout;
 
-        // Function to fetch the current status and update the background image
-        function updateStatus() {
+        // Directly update status image based on button click
+        function updateStatus(status) {
+            const screen = document.getElementById('statusScreen');
+            const statusImages = {
+                available: 'https://glpdtech.github.io/it/available01.jpg',
+                busy: 'https://glpdtech.github.io/it/busy02.jpg',
+                'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
+                meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
+                default: 'https://glpdtech.github.io/it/default.jpg'
+            };
+
+            // Update the background image based on the selected status
+            screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
+
+            // Notify the controller
+            notifyController(status);
+        }
+
+        // Notify the controller to update the status
+        function notifyController(status) {
+            fetch('https://glpdtech.github.io/it/status.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            })
+            .then(response => response.json())
+            .catch(err => console.error('Error notifying controller:', err));
+        }
+
+        // Show popup buttons when the user clicks
+        function showPopupButtons() {
+            const popupButtons = document.getElementById('popupButtons');
+            popupButtons.classList.add('show');
+            clearTimeout(popupTimeout);
+            popupTimeout = setTimeout(() => {
+                popupButtons.classList.remove('show');
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Attach listener to show popup buttons
+        document.body.addEventListener('click', showPopupButtons);
+
+        // Poll the status.json every 2 seconds to update the status
+        function pollStatus() {
             fetch('https://glpdtech.github.io/it/status.json')
                 .then(response => response.json())
                 .then(data => {
                     const screen = document.getElementById('statusScreen');
-                    const status = data.status || 'default';  // Default to 'default' if no status
+                    const statusImages = {
+                        available: 'https://glpdtech.github.io/it/available01.jpg',
+                        busy: 'https://glpdtech.github.io/it/busy02.jpg',
+                        'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
+                        meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
+                        default: 'https://glpdtech.github.io/it/default.jpg'
+                    };
+
+                    // Set the background image based on the status
+                    const status = data.status || 'default';  // Fallback to default if no status
                     screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
                 })
                 .catch(err => console.error('Error fetching status:', err));
         }
 
-        // Set up auto-refresh to fetch the status every 5 seconds
-        setInterval(updateStatus, 2000);  // Update every 5 seconds (you can adjust this time)
-
-        // Initial status load when the viewer page is opened
-        updateStatus();
+        setInterval(pollStatus, 2000); // Poll every 2 seconds
+        pollStatus();  // Initial call
     </script>
 </body>
 </html>
