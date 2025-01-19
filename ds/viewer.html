@@ -65,16 +65,16 @@
         <div id="statusScreen" class="screen"></div>
         <div id="popupButtons" class="popup-buttons">
             <button onclick="updateStatus('available')">
-                <img src="available_icon.png" alt="Available">
+                <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/available_icon.png" alt="Available">
             </button>
             <button onclick="updateStatus('busy')">
-                <img src="busy_icon.png" alt="Busy">
+                <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/busy_icon.png" alt="Busy">
             </button>
             <button onclick="updateStatus('DO NOT DISTURB')">
-                <img src="dnd_icon.png" alt="Do Not Disturb">
+                <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/dnd_icon.png" alt="Do Not Disturb">
             </button>
             <button onclick="updateStatus('meeting')">
-                <img src="meeting_icon.png" alt="Meeting">
+                <img src="https://raw.githubusercontent.com/glpdtech/it/main/ds/images/meeting_icon.png" alt="Meeting">
             </button>
         </div>
     </div>
@@ -86,28 +86,28 @@
         function updateStatus(status) {
             const screen = document.getElementById('statusScreen');
             const statusImages = {
-                available: 'https://glpdtech.github.io/it/available01.jpg',
-                busy: 'https://glpdtech.github.io/it/busy02.jpg',
-                'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
-                meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
-                default: 'https://glpdtech.github.io/it/default.jpg'
+                available: 'https://raw.githubusercontent.com/glpdtech/it/main/ds/images/available01.jpg',
+                busy: 'https://raw.githubusercontent.com/glpdtech/it/main/ds/images/busy02.jpg',
+                'DO NOT DISTURB': 'https://raw.githubusercontent.com/glpdtech/it/main/ds/images/DoNotDisturb04.jpg',
+                meeting: 'https://raw.githubusercontent.com/glpdtech/it/main/ds/images/Ongoingmeeting03.jpg',
+                default: 'https://raw.githubusercontent.com/glpdtech/it/main/ds/images/default.jpg'
             };
 
             // Update the background image based on the selected status
             screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
 
-            // Notify the controller
+            // Optionally, you can call the API to notify the controller (if needed)
             notifyController(status);
         }
 
         // Notify the controller to update the status
         function notifyController(status) {
-            fetch('https://glpdtech.github.io/it/status.json', {
+            fetch('https://raw.githubusercontent.com/glpdtech/it/main/status.json', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
+                body: JSON.stringify({ status: status })
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .catch(err => console.error('Error notifying controller:', err));
         }
 
@@ -124,29 +124,6 @@
         // Attach listener to show popup buttons
         document.body.addEventListener('click', showPopupButtons);
 
-        // Poll the status.json every 2 seconds to update the status
-        function pollStatus() {
-            fetch('https://glpdtech.github.io/it/status.json')
-                .then(response => response.json())
-                .then(data => {
-                    const screen = document.getElementById('statusScreen');
-                    const statusImages = {
-                        available: 'https://glpdtech.github.io/it/available01.jpg',
-                        busy: 'https://glpdtech.github.io/it/busy02.jpg',
-                        'DO NOT DISTURB': 'https://glpdtech.github.io/it/DoNotDisturb04.jpg',
-                        meeting: 'https://glpdtech.github.io/it/Ongoingmeeting03.jpg',
-                        default: 'https://glpdtech.github.io/it/default.jpg'
-                    };
-
-                    // Set the background image based on the status
-                    const status = data.status || 'default';  // Fallback to default if no status
-                    screen.style.backgroundImage = `url('${statusImages[status] || statusImages.default}')`;
-                })
-                .catch(err => console.error('Error fetching status:', err));
-        }
-
-        setInterval(pollStatus, 2000); // Poll every 2 seconds
-        pollStatus();  // Initial call
     </script>
 </body>
 </html>
